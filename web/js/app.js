@@ -3,6 +3,7 @@ const state = {
   players: [],
   logs: [],
   replay: [],
+  socket: null,
 };
 
 const mapImage = new Image();
@@ -111,6 +112,7 @@ loginForm.addEventListener('submit', async (event) => {
   localStorage.setItem('dragon_token', data.token);
   authCard.classList.add('hidden');
   panelRoot.classList.remove('hidden');
+  initSocket();
   await loadDashboard();
 });
 
@@ -151,29 +153,50 @@ document.getElementById('reportForm').addEventListener('submit', async (event) =
   });
 });
 
+
+function initSocket() {
+  if (!state.token) return;
+
+  if (state.socket) {
+    state.socket.disconnect();
+  }
+
+  state.socket = io({
+    auth: { token: state.token },
+    transports: ['websocket'],
+  });
+
+  state.socket.on('telemetry:update', (payload) => {
+    const idx = state.players.findIndex((p) => p.license === payload.license);
+    if (idx >= 0) state.players[idx] = { ...state.players[idx], ...payload, position: payload.position };
+    else state.players.push({ ...payload, position: payload.position });
+    onlineCounter.textContent = `Players online: ${state.players.length}`;
+    drawMap();
+  });
+
+  state.socket.on('logs:update', (payload) => {
+    state.logs.unshift({ ...payload, at: Date.now() });
+    updateLogs();
+  });
+
+  state.socket.on('connect_error', () => {
+    state.socket?.disconnect();
+    state.socket = null;
+  });
+}
+
 if (state.token) {
   authCard.classList.add('hidden');
   panelRoot.classList.remove('hidden');
+  initSocket();
   loadDashboard().catch(() => {
     state.token = '';
     localStorage.removeItem('dragon_token');
     authCard.classList.remove('hidden');
     panelRoot.classList.add('hidden');
+    state.socket?.disconnect();
+    state.socket = null;
   });
 }
-
-const socket = io();
-socket.on('telemetry:update', (payload) => {
-  const idx = state.players.findIndex((p) => p.license === payload.license);
-  if (idx >= 0) state.players[idx] = { ...state.players[idx], ...payload, position: payload.position };
-  else state.players.push({ ...payload, position: payload.position });
-  onlineCounter.textContent = `Players online: ${state.players.length}`;
-  drawMap();
-});
-
-socket.on('logs:update', (payload) => {
-  state.logs.unshift({ ...payload, at: Date.now() });
-  updateLogs();
-});
 
 mapImage.onload = drawMap;

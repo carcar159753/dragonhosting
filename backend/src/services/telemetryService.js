@@ -40,8 +40,17 @@ export function ingestLog(entry) {
 }
 
 export function addBan(data) {
-  store.bans.unshift({ ...data, id: crypto.randomUUID(), at: Date.now() });
+  const ban = { ...data, id: crypto.randomUUID(), at: Date.now() };
+  store.bans.unshift(ban);
   store.bans = store.bans.slice(0, 1000);
+  return ban;
+}
+
+export function addKick(data) {
+  const kick = { ...data, id: crypto.randomUUID(), at: Date.now() };
+  store.kicks.unshift(kick);
+  store.kicks = store.kicks.slice(0, 1000);
+  return kick;
 }
 
 export function addReport(data) {

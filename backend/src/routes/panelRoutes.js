@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { body, validationResult } from 'express-validator';
 import { requireAuth, requireLevel } from '../middleware/auth.js';
 import { store } from '../data/store.js';
-import { addBan, addReport } from '../services/telemetryService.js';
+import { addBan, addKick, addReport, ingestLog } from '../services/telemetryService.js';
 
 const router = Router();
 
@@ -25,6 +25,7 @@ router.get('/dashboard', (req, res) => {
     players,
     logs: store.logs.slice(0, 50),
     bans: store.bans.slice(0, 50),
+    kicks: store.kicks.slice(0, 50),
     reports: store.reports.slice(0, 50),
   });
 });
@@ -52,16 +53,41 @@ router.post(
       return res.status(422).json({ error: 'Dados inválidos.', details: errors.array() });
     }
 
+    const baseAction = {
+      license: req.body.license,
+      reason: req.body.reason,
+      by: req.user.email,
+    };
+
     if (req.body.type === 'ban') {
-      addBan({
+      const ban = addBan({
         type: 'manual_ban',
-        license: req.body.license,
-        reason: req.body.reason,
-        by: req.user.email,
+        ...baseAction,
       });
+
+      ingestLog({
+        name: req.user.email,
+        license: req.body.license,
+        reason: `Manual ban applied: ${req.body.reason}`,
+      });
+
+      req.app.get('io').emit('bans:update', ban);
+      return res.json({ ok: true, action: 'ban', id: ban.id });
     }
 
-    return res.json({ ok: true });
+    const kick = addKick({
+      type: 'manual_kick',
+      ...baseAction,
+    });
+
+    ingestLog({
+      name: req.user.email,
+      license: req.body.license,
+      reason: `Manual kick applied: ${req.body.reason}`,
+    });
+
+    req.app.get('io').emit('kicks:update', kick);
+    return res.json({ ok: true, action: 'kick', id: kick.id });
   }
 );
 

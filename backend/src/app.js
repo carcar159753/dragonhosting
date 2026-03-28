@@ -10,6 +10,7 @@ const __dirname = path.dirname(__filename);
 
 export function createApp(io, fiveMRoutesFactory) {
   const app = express();
+  app.set('io', io);
 
   app.use(cors());
   app.use(express.json({ limit: '2mb' }));
