@@ -1,24 +1,53 @@
-# Ubuntu-Desktop-noVNC-Heroku-VPS
+# Dragon AntiCheat Suite (FiveM + Painel Web)
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://dashboard.heroku.com/new?template=https://github.com/akuhnet/hero-vps-lifetime)
+Sistema completo com anticheat FiveM, backend Node.js/Express e painel web em dark theme com mapa 2D, replay e ações de staff.
 
-Ubuntu-Desktop-noVNC-Heroku-VPS serves docker VPS via heroku web and noVNC
+## Estrutura
 
+- `fivem-anticheat/` → resource FiveM (1 `client.lua`, 1 `server.lua`).
+- `backend/` → API JWT, staff levels, ingestão de telemetria e websocket.
+- `web/` → painel responsivo estilo Nexus/FiveGuard.
 
-Keep Running Heroku VPS 24/7
+## 1) Configurar Backend
 
+```bash
+cd backend
+cp .env.example .env
+npm install
+npm run start
+```
 
-[Keep Me VPS Running](http://kaffeine.herokuapp.com/)
+Credenciais padrão (alterar no `.env`):
+- `ADMIN_EMAIL=admin@dragon.local`
+- `ADMIN_PASSWORD=ChangeMe123!`
 
+## 2) Configurar Resource FiveM
 
-My Website
+1. Copie a pasta `fivem-anticheat` para `resources/[local]/dragon_anticheat`.
+2. Edite `fivem-anticheat/config.lua`:
+   - `Config.ResourceSecret`
+   - `Config.BackendBaseUrl`
+   - `Config.BackendApiKey` (igual ao `FIVEM_API_KEY` do backend)
+3. No `server.cfg`, adicione:
 
-[Akuh.net](https://www.akuh.net/)
+```cfg
+ensure dragon_anticheat
+```
 
+## 3) Abrir Painel
 
-Original Repo
-[vital987](https://github.com/vital987/vubuntu)
+Com backend ativo:
+- URL: `http://localhost:3000`
+- Login com credenciais staff.
 
+## Funcionalidades
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://dashboard.heroku.com/new?template=https://github.com/akuhnet/hero-vps-lifetime)
-
+- Anti-bypass por token de sessão.
+- Detecção: godmode, speed hack, teleport, noclip altura, arma ilegal.
+- Sistema de flags ponderadas + autoban.
+- IA simples por padrão de comportamento suspeito.
+- Replay de movimentação e telemetria em tempo real.
+- Dashboard com mapa 2D, players online, logs, replay visual.
+- Ban/Kick via painel e sistema de denúncias.
+- JWT, rotas protegidas e validação de payload.
+- Estrutura preparada para MySQL (`backend/src/data/mysql.js`).
