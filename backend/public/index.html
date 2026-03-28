@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dragon AC Panel</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div id="app">
+    <aside class="sidebar">
+      <h1>Dragon AC</h1>
+      <p>Painel de Monitoramento</p>
+      <button id="btnRefresh">Atualizar</button>
+      <button id="btnReplay">Replay Selecionado</button>
+    </aside>
+
+    <main class="content">
+      <section class="cards">
+        <article class="card"><h2>Players Online</h2><span id="playersOnline">0</span></article>
+        <article class="card"><h2>Flags</h2><span id="flagsCount">0</span></article>
+        <article class="card"><h2>Bans</h2><span id="bansCount">0</span></article>
+      </section>
+
+      <section class="map-wrap">
+        <canvas id="mapCanvas" width="900" height="600"></canvas>
+      </section>
+
+      <section class="tables">
+        <div>
+          <h3>Players</h3>
+          <ul id="playersList"></ul>
+        </div>
+        <div>
+          <h3>Flags Recentes</h3>
+          <ul id="flagsList"></ul>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="/panel.js"></script>
+</body>
+</html>

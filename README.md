@@ -1,24 +1,46 @@
-# Ubuntu-Desktop-noVNC-Heroku-VPS
+# Dragon Anticheat Suite (FiveM + Web Panel)
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://dashboard.heroku.com/new?template=https://github.com/akuhnet/hero-vps-lifetime)
+## Estrutura
 
-Ubuntu-Desktop-noVNC-Heroku-VPS serves docker VPS via heroku web and noVNC
+- `fivem-anticheat/`: resource completo do FiveM (`client.lua` e `server.lua` únicos)
+- `backend/`: API Node.js + painel web em tempo real
 
+## Requisitos
 
-Keep Running Heroku VPS 24/7
+- Node.js 20+
+- FiveM server com `oxmysql` (ou equivalente MySQL)
 
+## Instalação rápida
 
-[Keep Me VPS Running](http://kaffeine.herokuapp.com/)
+### 1) FiveM
 
+1. Copie `fivem-anticheat` para `resources/[local]/dragon_anticheat`
+2. Adicione no `server.cfg`:
+   ```cfg
+   ensure oxmysql
+   add_ace group.admin dragon_ac.staff allow
+   ensure dragon_anticheat
+   ```
+3. Ajuste `Config.BackendApi` e `Config.BackendSecret` em `fivem-anticheat/config.lua`
 
-My Website
+### 2) Backend + painel
 
-[Akuh.net](https://www.akuh.net/)
+```bash
+cd backend
+cp .env.example .env
+npm install
+npm run start
+```
 
+Acesse: `http://localhost:3000`
 
-Original Repo
-[vital987](https://github.com/vital987/vubuntu)
+### Login padrão painel
 
+- Usuário: `admin`
+- Senha: `admin123`
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://dashboard.heroku.com/new?template=https://github.com/akuhnet/hero-vps-lifetime)
+## Produção
 
+- Trocar todas as secrets do `.env`
+- Integrar persistência MySQL nas rotas e serviços
+- Habilitar HTTPS + reverse proxy
